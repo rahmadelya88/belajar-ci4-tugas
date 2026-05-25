@@ -19,10 +19,10 @@ public function login()
         $password = $this->request->getVar('password');
 
         $dataUser = [
-                        'username' => 'HilwaAmalia', 
+                        'username' => 'Rahma', 
                         'password' => '202cb962ac59075b964b07152d234b70', // passw 123
                         'role' => 'admin', 
-                        'email' => '111202415861@mhs.dinus.ac.id' 
+                        'email' => '111202415729@mhs.dinus.ac.id' 
                         ]; 
 
         if ($username == $dataUser['username']) {
@@ -30,7 +30,7 @@ public function login()
                 session()->set([
                     'username' => $dataUser['username'],
                     'role' => $dataUser['role'],
-                    'email' => '111202415861@mhs.dinus.ac.id',
+                    'email' => '111202415729@mhs.dinus.ac.id',
                     'login_time' => date('Y-m-d H:i:s'),
                     'isLoggedIn' => TRUE
                 ]);
