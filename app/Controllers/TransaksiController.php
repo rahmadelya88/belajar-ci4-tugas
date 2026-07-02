@@ -17,12 +17,13 @@ class TransaksiController extends BaseController
 
     public function __construct()
     {
-        helper(['number', 'form']);
+        helper(['number', 'form', 'transaksi']);
+
         $this->cart = service('cart');
         $this->transactionModel = new TransactionModel();
-        $this->transactionDetailModel = new TransactionDetailModel(); 
+        $this->transactionDetailModel = new TransactionDetailModel();
     }
-
+    
     public function index()
     {  
         $data = [
@@ -103,7 +104,7 @@ class TransaksiController extends BaseController
     public function checkout()
     {
         $data = [
-            'items' => $this->cart->contens(),
+            'items' => $this->cart->contents(),
             'total' => $this->cart->total()
         ];
 
@@ -180,13 +181,27 @@ class TransaksiController extends BaseController
         }
 
         $ongkir = (int) $this->request->getPost('ongkir');
+        $kuponCode = $this->request->getPost('kupon_code');
+        $diskonKupon = hitung_diskon_kupon($subtotal, $kuponCode);
+        $ppn = hitung_ppn($subtotal);
+        $biayaAdmin = hitung_biaya_admin($subtotal);
+
+        $grandTotal = $subtotal
+            - $diskonKupon
+            + $ppn
+            + $biayaAdmin
+            + $ongkir;
 
         $transaction = [
-            'username'    => $this->request->getPost('username'),
-            'alamat'      => $this->request->getPost('alamat'),
-            'ongkir'      => $ongkir,
-            'total_harga' => $subtotal + $ongkir,
-            'status'      => 0, 
+            'username'       => $this->request->getPost('username'),
+            'alamat'         => $this->request->getPost('alamat'),
+            'ongkir'         => $ongkir,
+            'ppn'            => $ppn,
+            'biaya_admin'    => $biayaAdmin,
+            'kupon_code'     => $kuponCode,
+            'diskon_kupon'   => $diskonKupon,
+            'total_harga'    => $grandTotal,
+            'status'         => 0,
         ];
 
         // insert transaction

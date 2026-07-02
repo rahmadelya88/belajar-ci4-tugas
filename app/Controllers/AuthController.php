@@ -19,59 +19,58 @@ class AuthController extends BaseController
     public function login()
     {
         if ($this->request->getPost()) {
+
             $rules = [
                 'username' => 'required|min_length[6]',
                 'password' => 'required|min_length[7]|numeric',
             ];
 
             if ($this->validate($rules)) {
+
                 $username = $this->request->getVar('username');
                 $password = $this->request->getVar('password');
 
-                $dataUser = $this->userModel->where(['username' => $username])->first();
+                $dataUser = $this->userModel->where('username', $username)->first();
 
                 if ($dataUser) {
+
                     if (password_verify($password, $dataUser['password'])) {
-                        $dataUser = [
-                            'username' => 'Rahmadlya', 
-                            'password' => '6e5f603247a61d89625127f3f67836a7', // passw 12345678
-                            'role'     => 'admin', 
-                            'email'    => '111202415729@mhs.dinus.ac.id' 
-                        ]; 
 
-                        if ($username == $dataUser['username']) {
-                            if (md5($password) == $dataUser['password']) {
-                                session()->set([
-                                    'username'   => $dataUser['username'],
-                                    'role'       => $dataUser['role'],
-                                    'email'      => '111202415729@mhs.dinus.ac.id',
-                                    'login_time' => date('Y-m-d H:i:s'),
-                                    'isLoggedIn' => TRUE
-                                ]);
+                        session()->set([
+                            'username'   => $dataUser['username'],
+                            'role'       => $dataUser['role'],
+                            'email'      => $dataUser['email'],
+                            'login_time' => date('Y-m-d H:i:s'),
+                            'isLoggedIn' => true
+                        ]);
 
-                                return redirect()->to(base_url('/'));
-                            } else {
-                                session()->setFlashdata('failed', 'Username & Password Salah');
-                                return redirect()->back();
-                            }
-                        } else {
-                            session()->setFlashdata('failed', 'Username Tidak Ditemukan');
-                            return redirect()->back();
-                        }
+                        return redirect()->to(base_url('/'));
+
                     } else {
+
                         session()->setFlashdata('failed', 'Username & Password Salah');
                         return redirect()->back();
+
                     }
+
                 } else {
+
                     session()->setFlashdata('failed', 'Username Tidak Ditemukan');
                     return redirect()->back();
+
                 }
+
             } else {
+
                 session()->setFlashdata('failed', $this->validator->listErrors());
                 return redirect()->back();
+
             }
+
         } else {
+
             return view('v_login');
+
         }
     }
 

@@ -5,8 +5,8 @@
         <?= form_open('buy', 'class="row g-3"') ?>
 
         <?= form_hidden('username', session()->get('username')) ?>
-        <?= form_hidden('total_harga', '', ['id' => 'total_harga']) ?>
-
+        <input type="hidden" name="total_harga" id="total_harga" value="">
+        
         <div class="col-12">
             <?= form_label('Nama', 'nama', ['class' => 'form-label']) ?>
             <?= form_input([
@@ -33,6 +33,16 @@
         <div class="col-12"> 
             <?= form_label('Layanan', 'layanan', ['class' => 'form-label']) ?> 
             <?= form_dropdown('layanan', [], '', ['id' => 'layanan', 'class' => 'form-control']) ?>        </div>
+        </div>
+
+        <div class="col-12">
+            <?= form_label('Kode Kupon', 'kupon_code', ['class' => 'form-label']) ?>
+            <?= form_input([
+                'name'        => 'kupon_code',
+                'id'          => 'kupon_code',
+                'class'       => 'form-control',
+                'placeholder' => 'Contoh: HEMAT20'
+            ]) ?>
         </div>
 
         <div class="col-12">
@@ -78,15 +88,41 @@
                     endforeach;
                 endif;
                 ?>
+
                 <tr>
                     <td colspan="2"></td>
                     <td>Subtotal</td>
                     <td><?= number_to_currency($total, 'IDR') ?></td>
                 </tr>
+
                 <tr>
                     <td colspan="2"></td>
-                    <td>Total</td>
-                    <td><span id="total"><?= number_to_currency($total, 'IDR') ?></span></td>
+                    <td>Diskon Kupon</td>
+                    <td><span id="diskon">IDR 0</span></td>
+                </tr>
+
+                <tr>
+                    <td colspan="2"></td>
+                    <td>PPN (12%)</td>
+                    <td><span id="ppn">IDR 0</span></td>
+                </tr>
+
+                <tr>
+                    <td colspan="2"></td>
+                    <td>Biaya Admin</td>
+                    <td><span id="admin">IDR 0</span></td>
+                </tr>
+
+                <tr>
+                    <td colspan="2"></td>
+                    <td>Ongkir</td>
+                    <td><span id="ongkir_view">IDR 0</span></td>
+                </tr>
+
+                <tr class="table-primary">
+                    <td colspan="2"></td>
+                    <td><strong>Grand Total</strong></td>
+                    <td><strong><span id="total"><?= number_to_currency($total, 'IDR') ?></span></strong></td>
                 </tr>
             </tbody>
         </table>
@@ -101,11 +137,37 @@ $(document).ready(function() {
     hitungTotal();
 
     function hitungTotal() {
-        let total = subtotal + ongkir;
+        let kupon = $("#kupon_code").val().toUpperCase();
+        let diskon = 0;
 
+        if (kupon == "HEMAT20")
+            diskon = subtotal * 0.20;
+
+        else if (kupon == "HEMAT30")
+            diskon = subtotal * 0.30;
+
+        else if (kupon == "MEMBER25")
+            diskon = subtotal * 0.25;
+
+        let ppn = subtotal * 0.12;
+        let admin = 0;
+
+        if (subtotal <= 15000000)
+            admin = subtotal * 0.005;
+        else if (subtotal <= 35000000)
+            admin = subtotal * 0.007;
+        else
+            admin = subtotal * 0.009;
+
+        let grandTotal = subtotal - diskon + ppn + admin + ongkir;
+
+        $("#diskon").text("IDR " + diskon.toLocaleString("id-ID"));
+        $("#ppn").text("IDR " + ppn.toLocaleString("id-ID"));
+        $("#admin").text("IDR " + admin.toLocaleString("id-ID"));
+        $("#ongkir_view").text("IDR " + ongkir.toLocaleString("id-ID"));
         $("#ongkir").val(ongkir);
-        $("#total").text(`IDR ${total.toLocaleString('id-ID')}`);
-        $("#total_harga").val(total);
+        $("#total").text("IDR " + grandTotal.toLocaleString("id-ID"));
+        $("#total_harga").val(grandTotal);
     }
 
 	$('#kelurahan').select2({
@@ -157,6 +219,10 @@ $(document).ready(function() {
     ongkir = parseInt($(this).val());
     hitungTotal();
     }); 
+
+    $("#kupon_code").on("keyup change", function () {
+    hitungTotal();
+    });
 });
 </script>
 <?= $this->endSection() ?>

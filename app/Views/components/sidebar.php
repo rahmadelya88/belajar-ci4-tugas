@@ -43,6 +43,13 @@
               <span>Profile</span>
             </a>
         </li>
+
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="<?= base_url('logout') ?>">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Logout</span>
+            </a>
+        </li><!-- End Logout Nav -->
     </ul>
 
 </aside><!-- End Sidebar-->
